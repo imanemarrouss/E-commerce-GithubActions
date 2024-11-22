@@ -1,18 +1,25 @@
-# Étape 1 : Base Python
+# Utiliser une image Python de base
 FROM python:3.10-slim
 
-# Étape 2 : Définir le répertoire de travail
-WORKDIR /e-commerce
+# Installer les dépendances système nécessaires
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    default-libmysqlclient-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
-
+# Copier les fichiers nécessaires
 COPY requirements.txt requirements.txt
+
+# Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Ajouter les fichiers de l'application (exemple)
+COPY . /app
+WORKDIR /app
 
-COPY . .
-
-
+# Définir le port exposé
 EXPOSE 5000
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
 
-
+# Commande pour démarrer l'application
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
